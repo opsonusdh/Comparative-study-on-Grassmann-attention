@@ -1,0 +1,91 @@
+# Resume the DeepSeek-style 2x T4 baseline from its latest full checkpoint.
+# Uses the project's original DeepSeek attention route:
+#   physical layers 0-1: SWA
+#   physical layers 2,4,6: CSA
+#   physical layers 3,5,7: HCA
+# The Kaggle startup restore completes BEFORE training begins. Keep the
+# checkpoint and visualizer beside the restored history inside loop_llm so
+# latest.pt, history.jsonl, probe.pt, and the graph all share one canonical tree.
+# The prior logged run saved checkpoint step 600 before the NCCL timeout.
+# This should continue at step 601/5000 if the restored Drive checkpoint is that save.
+# The code validates the exact checkpoint step and LR state before training.
+
+!NCCL_DEBUG=INFO TORCH_NCCL_ASYNC_ERROR_HANDLING=1 \
+torchrun --standalone --nproc-per-node=2 /kaggle/input/datasets/sumanasensen/loop-llm/loopllm_moa7/loopllm_moa7/loopllm_clean_rfc/train.py \
+  --train-data /kaggle/input/datasets/sumanasensen/loop-llm/train.bin \
+  --val-data /kaggle/input/datasets/sumanasensen/loop-llm/train.val.bin \
+  --data-dtype uint16 \
+  --vocab-size 50281 \
+  --dim 512 \
+  --n-layers 8 \
+  --n-heads 8 \
+  --head-dim 64 \
+  --ffn-hidden-dim 2048 \
+  --rope-dim 64 \
+  --max-loops 4 \
+  --min-loops 4 \
+  --no-loop-sampling \
+  --loop-refinement-weight 0.02 \
+  --loop-refinement-margin 0.001 \
+  --no-loop-positional-embedding \
+  --residual-loop-embedding \
+  --causal-register-bank \
+  --causal-registers 4 \
+  --causal-register-update-scale 0.10 \
+  --no-loop-transition-matrices \
+  --loop-controller \
+  --loop-controller-bound 0.20 \
+  --sw-window 256 \
+  --csa-m 4 \
+  --csa-top-k 80 \
+  --csa-aux-loss-weight 0.0 \
+  --hca-m-prime 128 \
+  --groups 8 \
+  --group-dim 64 \
+  --moe-num-shared-experts 1 \
+  --moe-num-routed-experts 4 \
+  --moe-top-k 2 \
+  --moe-expert-hidden-dim 512 \
+  --activation-dictionary moa7 \
+  --activation-gate-mode sigmoid \
+  --activation-top-k 7 \
+  --activation-min-probability 0.0 \
+  --activation-balance-weight 0.0 \
+  --activation-bias-update-speed 0.0 \
+  --moe-aux-loss-weight 0.0 \
+  --moe-bias-update-speed 0.0 \
+  --no-expert-local-activation-routing \
+  --tie-embeddings \
+  --dropout 0.05 \
+  --grad-checkpointing \
+  --batch-size 4 \
+  --seq-len 300 \
+  --max-steps 5000 \
+  --late-loop-loss-weight 0.0 \
+  --source Kaggle \
+  --resume /kaggle/working/loop_llm/deepseek_baseline_runs/DeepSeek_SWA_CSA_HCA/checkpoints/latest.pt \
+  --require-resume \
+  --lr 3e-5 \
+  --min-lr-ratio 0.05 \
+  --beta1 0.9 \
+  --beta2 0.95 \
+  --weight-decay 0.01 \
+  --warmup-steps 200 \
+  --grad-accum-steps 1 \
+  --grad-clip 1.0 \
+  --eval-interval 100 \
+  --eval-iters 20 \
+  --checkpoint-interval 100 \
+  --log-interval 50 \
+  --seed 2009 \
+  --device cuda \
+  --dtype float32 \
+  --no-amp \
+  --attention-type deepseek \
+  --checkpoint-dir /kaggle/working/loop_llm/deepseek_baseline_runs/DeepSeek_SWA_CSA_HCA/checkpoints \
+  --viz-dir /kaggle/working/loop_llm/deepseek_baseline_runs/DeepSeek_SWA_CSA_HCA/visualizations \
+  --viz-interval 100 \
+  --viz-probe-size 5 \
+  --viz-label "DeepSeek Attention | SWA + CSA + HCA | 2x T4 baseline" \
+  --run-name deepseek_swa_csa_hca_512x8_seed2009_5k \
+  --notes "Resumed 5,000-step DeepSeek-style attention baseline; SWA in layers 0-1, CSA in even layers >=2, HCA in odd layers >=3; matched data, seed, global batch, sequence length, optimizer, LR schedule, MoA7/RFC/MoE configuration and two-T4 DDP setup against Grassmann experiments."

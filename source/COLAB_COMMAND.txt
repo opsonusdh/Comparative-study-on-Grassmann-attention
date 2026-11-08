@@ -1,0 +1,33 @@
+# 1) Install
+!pip install -r requirements.txt
+
+# 2) Train corrected MoA7 + RFC directly from .bin
+!python train.py \
+  --train-data data/tinyshakespeare.bin \
+  --val-data data/tinyshakespeare.val.bin \
+  --data-dtype uint16 \
+  --vocab-size 65 \
+  --dim 64 --n-layers 3 --n-heads 4 --head-dim 16 \
+  --ffn-hidden-dim 256 --rope-dim 16 \
+  --max-loops 4 --min-loops 4 --no-loop-sampling \
+  --loop-refinement-weight 0.02 --loop-refinement-margin 0.001 \
+  --residual-loop-embedding \
+  --causal-register-bank --causal-registers 4 --causal-register-update-scale 0.10 \
+  --loop-controller --loop-controller-bound 0.20 \
+  --moe-num-shared-experts 1 --moe-num-routed-experts 2 --moe-top-k 1 \
+  --moe-expert-hidden-dim 128 \
+  --activation-dictionary moa7 --activation-gate-mode sigmoid \
+  --activation-top-k 7 --activation-min-probability 0.0 \
+  --no-expert-local-activation-routing \
+  --sw-window 32 --csa-m 2 --csa-top-k 4 --csa-aux-loss-weight 0.0 \
+  --hca-m-prime 8 --groups 8 --group-dim 1024 \
+  --tie-embeddings --dropout 0.0 --no-grad-checkpointing \
+  --batch-size 2 --seq-len 32 --max-steps 800 \
+  --lr 0.002 --min-lr-ratio 0.05 \
+  --beta1 0.9 --beta2 0.95 --weight-decay 0.01 \
+  --warmup-steps 100 --grad-accum-steps 1 --grad-clip 1.0 \
+  --eval-interval 50 --eval-iters 32 \
+  --checkpoint-interval 100 --log-interval 10 \
+  --seed 123 --device cuda --dtype float32 --no-amp \
+  --checkpoint-dir checkpoints/rfc_seed123 \
+  --viz-dir visualizations/rfc_seed123 --viz-interval 100

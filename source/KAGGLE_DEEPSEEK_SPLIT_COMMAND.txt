@@ -1,0 +1,76 @@
+# Fresh Kaggle experiment: DeepSeek SWA/CSA/HCA loop-split compressed memory, stride 4.
+# Launches both visible T4 GPUs with a bounded/logged NCCL startup.
+# Preserves full SWA and raw local windows; partitions only CSA/HCA compressed long-range blocks.
+# Uses a NEW checkpoint directory so baseline and experiment metrics stay separate.
+# --source Kaggle restores the persistent Google Drive loop_llm tree on every launch.
+
+NCCL_DEBUG=INFO TORCH_NCCL_ASYNC_ERROR_HANDLING=1 \
+torchrun --standalone --nproc-per-node=2 train.py \
+  --train-data /content/drive/MyDrive/train.bin \
+  --val-data /content/drive/MyDrive/train.val.bin \
+  --data-dtype uint16 \
+  --vocab-size 50281 \
+  --dim 512 \
+  --n-layers 8 \
+  --n-heads 8 \
+  --head-dim 64 \
+  --ffn-hidden-dim 2048 \
+  --rope-dim 64 \
+  --max-loops 4 \
+  --min-loops 4 \
+  --no-loop-sampling \
+  --loop-refinement-weight 0.02 \
+  --loop-refinement-margin 0.001 \
+  --no-loop-positional-embedding \
+  --residual-loop-embedding \
+  --causal-register-bank \
+  --causal-registers 4 \
+  --causal-register-update-scale 0.10 \
+  --no-loop-transition-matrices \
+  --loop-controller \
+  --loop-controller-bound 0.20 \
+  --attention-type deepseek-split \
+  --deepseek-split-stride 4 \
+  --sw-window 200 \
+  --moe-num-shared-experts 1 \
+  --moe-num-routed-experts 4 \
+  --moe-top-k 2 \
+  --activation-dictionary moa7 \
+  --activation-gate-mode sigmoid \
+  --activation-top-k 7 \
+  --activation-min-probability 0.0 \
+  --activation-balance-weight 0.0 \
+  --activation-bias-update-speed 0.0 \
+  --moe-aux-loss-weight 0.0 \
+  --moe-bias-update-speed 0.0 \
+  --no-expert-local-activation-routing \
+  --tie-embeddings \
+  --dropout 0.05 \
+  --grad-checkpointing \
+  --batch-size 2 \
+  --seq-len 300 \
+  --max-steps 1000000 \
+  --force-lr 1e-5 \
+  --min-lr-ratio 0.05 \
+  --beta1 0.9 \
+  --beta2 0.95 \
+  --weight-decay 0.01 \
+  --warmup-steps 200 \
+  --grad-accum-steps 1 \
+  --grad-clip 1.0 \
+  --eval-interval 100 \
+  --eval-iters 20 \
+  --checkpoint-interval 100 \
+  --log-interval 50 \
+  --seed 2009 \
+  --device cuda \
+  --dtype float32 \
+  --no-amp \
+  --checkpoint-dir /content/drive/MyDrive/loop_llm/deepseek_split_stride4_512x8 \
+  --viz-dir /content/drive/MyDrive/loop_llm/deepseek_split_stride4_512x8/visualizations \
+  --viz-interval 100 \
+  --viz-probe-size 5 \
+  --run-name deepseek_split_stride4_moa7_rfc_512x8 \
+  --notes "DeepSeek SWA/CSA/HCA preserved; full local windows; compressed CSA/HCA long-range context partitioned across recurrent loops; stride 4" \
+  --late-loop-loss-weight 0.25 \
+  --source Kaggle

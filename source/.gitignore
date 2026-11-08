@@ -1,0 +1,6 @@
+client_secrets.json
+credentials.json
+credentials.json.bak
+token.json
+__pycache__/
+*.py[cod]

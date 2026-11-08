@@ -1,0 +1,97 @@
+{
+  "benchmark": "synthetic random-cycle multi-hop next-token LM",
+  "sequence_length": 39,
+  "vocabulary_size": 19,
+  "train_examples": 1024,
+  "validation_examples": 1024,
+  "validation_examples_per_hop": 256,
+  "answer_prediction_position": 36,
+  "chance_answer_accuracy": 0.125,
+  "model_config": {
+    "dim": 32,
+    "layers": 2,
+    "heads": 4,
+    "head_dim": 8,
+    "ffn_hidden_dim": 64,
+    "loops": 2,
+    "grassmann_rank": 8,
+    "grassmann_offsets": [
+      1,
+      2,
+      4,
+      8
+    ]
+  },
+  "same_non_attention_initialization": true,
+  "same_train_batches": true,
+  "same_optimizer": "AdamW",
+  "learning_rate": 0.002,
+  "results": {
+    "deepseek": {
+      "attention_type": "deepseek",
+      "steps": 100,
+      "seconds": 11.30516541499992,
+      "total_model_parameters": 31609,
+      "trainable_parameters": 31609,
+      "gradient_active_parameters": 31513,
+      "active_attention_parameters": 8512,
+      "best_validation": {
+        "val_ce": 1.1880215469159578,
+        "val_perplexity": 3.280584300462865,
+        "val_next_token_accuracy": 0.5589278371710527,
+        "multi_hop_answer_accuracy": {
+          "1": 0.171875,
+          "2": 0.11328125,
+          "3": 0.09765625,
+          "4": 0.12890625
+        },
+        "multi_hop_answer_accuracy_overall": 0.1279296875
+      },
+      "final_validation": {
+        "val_ce": 1.1880215469159578,
+        "val_perplexity": 3.280584300462865,
+        "val_next_token_accuracy": 0.5589278371710527,
+        "multi_hop_answer_accuracy": {
+          "1": 0.171875,
+          "2": 0.11328125,
+          "3": 0.09765625,
+          "4": 0.12890625
+        },
+        "multi_hop_answer_accuracy_overall": 0.1279296875
+      }
+    },
+    "grassmann": {
+      "attention_type": "grassmann",
+      "steps": 100,
+      "seconds": 10.177090984000074,
+      "total_model_parameters": 29769,
+      "trainable_parameters": 29769,
+      "gradient_active_parameters": 29673,
+      "active_attention_parameters": 6672,
+      "best_validation": {
+        "val_ce": 1.1394277371858295,
+        "val_perplexity": 3.1249795438090304,
+        "val_next_token_accuracy": 0.5388826069078947,
+        "multi_hop_answer_accuracy": {
+          "1": 0.1171875,
+          "2": 0.11328125,
+          "3": 0.1328125,
+          "4": 0.1484375
+        },
+        "multi_hop_answer_accuracy_overall": 0.1279296875
+      },
+      "final_validation": {
+        "val_ce": 1.1394277371858295,
+        "val_perplexity": 3.1249795438090304,
+        "val_next_token_accuracy": 0.5388826069078947,
+        "multi_hop_answer_accuracy": {
+          "1": 0.1171875,
+          "2": 0.11328125,
+          "3": 0.1328125,
+          "4": 0.1484375
+        },
+        "multi_hop_answer_accuracy_overall": 0.1279296875
+      }
+    }
+  }
+}

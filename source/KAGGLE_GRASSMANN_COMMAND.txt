@@ -1,0 +1,6 @@
+Use the matched positional-embedding ablation commands instead of this legacy single-run command:
+
+- GRASSMANN_ABLATION_A_NO_ABSOLUTE_POSITIONS.txt
+- GRASSMANN_ABLATION_B_LEARNED_POSITIONS.txt
+
+Both use the same production configuration, a 5,000-step budget, an explicit 3e-5 peak LR with 200 warmup steps, separate checkpoint/visualization directories, and distinct visualization labels. Do not add --force-lr to these fresh runs. See GRASSMANN_POSITION_ABLATION_README.md.

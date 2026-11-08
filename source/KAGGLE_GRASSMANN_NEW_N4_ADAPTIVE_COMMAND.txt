@@ -1,0 +1,84 @@
+!NCCL_DEBUG=INFO TORCH_NCCL_ASYNC_ERROR_HANDLING=1 torchrun --standalone --nproc-per-node=2 /kaggle/input/datasets/sumanasensen/loop-llm/loopllm_moa7/loopllm_moa7/loopllm_clean_rfc/train.py \
+  --train-data /kaggle/input/datasets/sumanasensen/loop-llm/train.bin \
+  --val-data /kaggle/input/datasets/sumanasensen/loop-llm/train.val.bin \
+  --data-dtype uint16 \
+  --vocab-size 50281 \
+  --dim 512 \
+  --n-layers 8 \
+  --n-heads 8 \
+  --head-dim 64 \
+  --ffn-hidden-dim 2048 \
+  --rope-dim 64 \
+  --max-loops 4 \
+  --min-loops 4 \
+  --no-loop-sampling \
+  --loop-refinement-weight 0.02 \
+  --loop-refinement-margin 0.001 \
+  --no-loop-positional-embedding \
+  --residual-loop-embedding \
+  --causal-register-bank \
+  --causal-registers 4 \
+  --causal-register-update-scale 0.10 \
+  --no-loop-transition-matrices \
+  --loop-controller \
+  --loop-controller-bound 0.20 \
+  --sw-window 256 \
+  --csa-m 4 \
+  --csa-top-k 80 \
+  --csa-aux-loss-weight 0.0 \
+  --hca-m-prime 128 \
+  --groups 8 \
+  --group-dim 64 \
+  --moe-num-shared-experts 1 \
+  --moe-num-routed-experts 4 \
+  --moe-top-k 2 \
+  --moe-expert-hidden-dim 512 \
+  --activation-dictionary moa7 \
+  --activation-gate-mode sigmoid \
+  --activation-top-k 7 \
+  --activation-min-probability 0.0 \
+  --activation-balance-weight 0.0 \
+  --activation-bias-update-speed 0.0 \
+  --moe-aux-loss-weight 0.0 \
+  --moe-bias-update-speed 0.0 \
+  --no-expert-local-activation-routing \
+  --tie-embeddings \
+  --dropout 0.05 \
+  --grad-checkpointing \
+  --batch-size 4 \
+  --seq-len 300 \
+  --max-steps 5000 \
+  --source Kaggle \
+  --lr 3e-5 \
+  --min-lr-ratio 0.05 \
+  --beta1 0.9 \
+  --beta2 0.95 \
+  --weight-decay 0.01 \
+  --warmup-steps 200 \
+  --grad-accum-steps 1 \
+  --grad-clip 1.0 \
+  --eval-interval 100 \
+  --eval-iters 20 \
+  --checkpoint-interval 100 \
+  --log-interval 50 \
+  --seed 2009 \
+  --device cuda \
+  --dtype float32 \
+  --no-amp \
+  --viz-probe-size 5 \
+  --viz-interval 100 \
+  --run-name grassmann_new_adaptive_n4_seed2009_5k \
+  --notes "Grassmann-New progressive recurrent offsets (N=4 local offsets plus adaptive sparse-global offsets, spacing base=2), no learned absolute positions; causal previous-token pairing; 5000 steps." \
+  --late-loop-loss-weight 0.25 \
+  --drive-save-interval 500 \
+  --attention-type grassmann-new \
+  --grassmann-offset-count 4 \
+  --grassmann-offset-spacing-base 2 \
+  --grassmann-rank 32 \
+  --grassmann-offsets 1 2 4 8 12 16 \
+  --no-grassmann-positional-embedding \
+  --grassmann-positional-max-len 301 \
+  --grassmann-positional-seed 2009 \
+  --checkpoint-dir /kaggle/working/grassmann_new_runs/N4_adaptive_no_absolute_positions/checkpoints \
+  --viz-dir /kaggle/working/grassmann_new_runs/N4_adaptive_no_absolute_positions/visualizations \
+  --viz-label "Grassmann-New | Adaptive Progressive + Sparse-Global Offsets N=4 | No Absolute Positions"
